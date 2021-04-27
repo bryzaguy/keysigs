@@ -20,8 +20,9 @@ const minor_letters = [
 const types = ["maj", "min"];
 const clefs = ["treble", "bass"];
 const fails = ['Sorry', 'So close', ':(', 'Ouch', 'Whoops', 'Dang!', 'Answer']
-// const levels = ['Major', 'Minor', 'Mixed']
+// const levels = ['Major', 'Minor', 'Both']
 const currentLevel = 0
+const solved = []
 
 const play = (lastResult) => {
   const type = currentLevel < 2 ? types[currentLevel] : pickRandom(types)
@@ -34,7 +35,9 @@ const play = (lastResult) => {
 
 function KeySignature ({letter: key}) {
   return (
-    <Fragment>{key.split('')[0]}<span style={{fontSize: '0.75em'}}>{key.split('')[1] || ''}</span></Fragment>
+    <Fragment>{key.split('')[0]}<span style={{
+      fontSize: '0.75em', pointerEvents: 'none'
+    }}>{key.split('')[1] || ''}</span></Fragment>
   )
 }
 
@@ -52,6 +55,9 @@ function App() {
     const win = e.target.textContent === letter
     const count = lastResult.count + 1
     const streak = win ? (lastResult.streak || 0) + 1 : 0
+    win && solved.push(letter)
+
+    console.log(e.target.textContent, letter)
 
     setState(play({ count, streak, win, lastLetter: letter }))
   };
