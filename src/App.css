@@ -201,6 +201,7 @@
   font-size: 2.5rem;
   color: white;
   padding: 1rem;
+  box-sizing: border-box;
   width: 100%;
 }
 
