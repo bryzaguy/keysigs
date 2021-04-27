@@ -20,7 +20,7 @@ const minor_letters = [
 const types = ["maj", "min"];
 const clefs = ["treble", "bass"];
 const fails = ['Sorry', 'So close', ':(', 'Ouch', 'Whoops', 'Dang!', 'Answer']
-const levels = ['Major', 'Minor', 'Mixed']
+// const levels = ['Major', 'Minor', 'Mixed']
 const currentLevel = 0
 
 const play = (lastResult) => {
