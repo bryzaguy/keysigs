@@ -14,7 +14,7 @@ const major_letters = [
 ].sort();
 
 const minor_letters = [
-  "A", "B", "C", "D", "E", "F", "G", "A#", "C#", "D#", "G#", "Ab", "Bb", "Cb", "Db", "Eb", "Gb",
+  "A", "B", "C", "D", "E", "F", "G", "A#", "C#", "D#", "G#", "Ab", "Bb", "Eb",
 ].map(l => l.toLowerCase()).sort();
 
 const types = ["maj", "min"];
@@ -31,7 +31,7 @@ const newGame = (lastResult) => {
 
 function App() {
   const [{ clef, type, letter, letters, lastResult }, setState] = useState(
-    newGame({})
+    newGame({count: 0})
   )
 
   const cssLetter = letter.split('').map(
@@ -41,7 +41,7 @@ function App() {
 
   const onClick = (e) => {
     const game = newGame({
-      count: lastResult.count++,
+      count: lastResult.count + 1,
       win: e.target.textContent === letter
     })
     setState(game)
