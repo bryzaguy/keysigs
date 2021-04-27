@@ -51,8 +51,11 @@ function App() {
     <div className="App">
       <header className="App-header">
         {lastResult.win !== undefined && (
-          <div className='Result' style={{color: lastResult.win ? 'green' : 'red'}}>
-            {lastResult.win ? 'GOT IT!' : 'BUMMER :('} {lastResult.streak > 1 && <span>{`(${lastResult.streak} POINT STREAK!)`}</span>}
+          <div className='Result' style={{background: lastResult.win ? 'green' : 'red'}}>
+            <div>{lastResult.win ? 'GOT IT!' : 'BUMMER :('}</div>
+            {lastResult.streak > 1 && (
+              <div style={{fontSize: 20}}>{`(${lastResult.streak} POINT STREAK!)`}</div>
+            )}
           </div>
         )}
         <div className={`App-logo ${className}`} />
@@ -62,7 +65,7 @@ function App() {
           ))}
         </div>
       </header>
-      <a href={prizeLink} style={{ display: "hidden" }}>
+      <a href={prizeLink} style={{ display: "none" }}>
         {prizeLink}
       </a>
     </div>
