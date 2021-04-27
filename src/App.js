@@ -72,7 +72,11 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <div className='Result' style={{color: lastResult ? 'green' : 'red'}}>{lastResult ? 'GOT IT!' : 'BUMMER'}</div>
+        {lastResult !== undefined && (
+          <div className='Result' style={{color: lastResult ? 'green' : 'red'}}>
+            {lastResult ? 'GOT IT!' : 'BUMMER'}
+          </div>
+        )}
         <div className={`App-logo ${className}`} />
         <div className="Answers">
           {letters.map((key) => (
