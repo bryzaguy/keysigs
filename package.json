@@ -26,6 +26,7 @@
       "react-app/jest"
     ]
   },
+  "homepage": "https://bryzaguy.github.io/keysigs",
   "browserslist": {
     "production": [
       ">0.2%",
