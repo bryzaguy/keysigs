@@ -3,15 +3,184 @@
 }
 
 .App-logo {
-  height: 40vmin;
-  pointer-events: none;
+  height: 200px;
+  width: 200px;
+  background: url('./AB_KeySignatureID.jpg') no-repeat;
+  box-shadow: inset 0 0 7px 10px white;
+  /* pointer-events: none; */
 }
 
-@media (prefers-reduced-motion: no-preference) {
+/* @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
+} */
+
+/* .treble-q-maj,
+.treble-q-min {
+  background-position: -723px -1731px;
 }
+
+.bass-q-maj,
+.bass-q-min {
+  background-position: -723px -1920px;
+} */
+
+.treble-bf-maj,
+.treble-g-min {
+  background-position: -175px -1731px;
+}
+
+.bass-bf-maj,
+.bass-g-min {
+  background-position: -175px -1920px;
+}
+
+.treble-fs-maj,
+.treble-ds-min {
+  background-position: -175px -1385px;
+}
+
+.bass-fs-maj,
+.bass-ds-min {
+  background-position: -175px -1570px;
+}
+
+.treble-cs-maj,
+.treble-as-min {
+  background-position: -175px -1067px;
+}
+
+.bass-cs-maj,
+.bass-as-min {
+  background-position: -175px -1233px;
+}
+
+.treble-df-maj,
+.treble-bf-min {
+  background-position: -175px -731px;
+}
+
+.bass-df-maj,
+.bass-bf-min {
+  background-position: -175px -885px;
+}
+
+.treble-g-maj,
+.treble-e-min {
+  background-position: -175px -379px;
+}
+
+.bass-g-maj,
+.bass-e-min {
+  background-position: -175px -555px;
+}
+
+/* center of page */
+
+.treble-f-maj,
+.treble-d-min {
+  background-position: -723px -1731px;
+}
+
+.bass-f-maj,
+.bass-d-min {
+  background-position: -723px -1920px;
+}
+
+.treble-c-maj,
+.treble-a-min {
+  background-position: -723px -1385px;
+}
+
+.bass-c-maj,
+.bass-a-min {
+  background-position: -723px -1570px;
+}
+
+.treble-af-maj,
+.treble-f-min {
+  background-position: -723px -1067px;
+}
+
+.bass-af-maj,
+.bass-f-min {
+  background-position: -723px -1233px;
+}
+
+.treble-gf-maj,
+.treble-ef-min {
+  background-position: -723px -731px;
+}
+
+.bass-gf-maj,
+.bass-ef-min {
+  background-position: -723px -885px;
+}
+
+.treble-e-maj,
+.treble-cs-min {
+  background-position: -723px -379px;
+}
+
+.bass-e-maj,
+.bass-cs-min {
+  background-position: -723px -555px;
+}
+
+/* right side of page */
+
+
+.treble-d-maj,
+.treble-b-min {
+  background-position: -1270px -1731px;
+}
+
+.bass-d-maj,
+.bass-b-min {
+  background-position: -1270px -1920px;
+}
+
+.treble-b-maj,
+.treble-gs-min {
+  background-position: -1270px -1385px;
+}
+
+.bass-b-maj,
+.bass-gs-min {
+  background-position: -1270px -1570px;
+}
+
+.treble-cf-maj,
+.treble-af-min {
+  background-position: -1270px -1067px;
+}
+
+.bass-cf-maj,
+.bass-af-min {
+  background-position: -1270px -1233px;
+}
+
+.treble-ef-maj,
+.treble-c-min {
+  background-position: -1270px -731px;
+}
+
+.bass-ef-maj,
+.bass-c-min {
+  background-position: -1270px -885px;
+}
+
+.treble-a-maj,
+.treble-fs-min {
+  background-position: -1270px -379px;
+}
+
+.bass-a-maj,
+.bass-fs-min {
+  background-position: -1270px -555px;
+}
+
 
 .App-header {
   background-color: #282c34;
