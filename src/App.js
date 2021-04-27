@@ -14,7 +14,7 @@ const major_letters = [
 ].sort();
 
 const minor_letters = [
-  "A", "B", "C", "D", "E", "F", "G", "A#", "C#", "D#", "G#", "Ab", "Bb", "Eb",
+  "A", "B", "C", "D", "E", "F", "G", "A#", "C#", "D#", "F#", "G#", "Ab", "Bb", "Eb",
 ].map(l => l.toLowerCase()).sort();
 
 const types = ["maj", "min"];
@@ -40,11 +40,11 @@ function App() {
   const className = `${clef}-${cssLetter.toLowerCase()}-${type}`
 
   const onClick = (e) => {
-    const game = newGame({
-      count: lastResult.count + 1,
-      win: e.target.textContent === letter
-    })
-    setState(game)
+    const win = e.target.textContent === letter
+    const count = lastResult.count + 1
+    const streak = win ? (lastResult.streak || 0) + 1 : 0
+
+    setState(newGame({ count, streak, win }))
   };
 
   return (
@@ -52,7 +52,7 @@ function App() {
       <header className="App-header">
         {lastResult.win !== undefined && (
           <div className='Result' style={{color: lastResult.win ? 'green' : 'red'}}>
-            {lastResult.win ? 'GOT IT!' : 'BUMMER :('}
+            {lastResult.win ? 'GOT IT!' : 'BUMMER :('} {lastResult.streak > 1 && <span>{`(${lastResult.streak} POINT STREAK!)`}</span>}
           </div>
         )}
         <div className={`App-logo ${className}`} />
