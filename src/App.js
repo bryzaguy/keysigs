@@ -3,46 +3,19 @@ import { useState } from "react";
 
 const pickRandom = (arr) => arr[Math.ceil(Math.random() * arr.length) - 1];
 
+// Streak score
+// Time multiplier
+
 const prizeLink =
   "https://docs.google.com/document/d/1e8bCDXDnz1Y-qnNY2vTknYMVThinHRO2Ur9eF1V1DZk/edit?usp=sharing";
 
 const major_letters = [
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "C#",
-  "F#",
-  "Ab",
-  "Bb",
-  "Cb",
-  "Db",
-  "Eb",
-  "Gb",
+  "A", "B", "C", "D", "E", "F", "G", "C#", "F#", "Ab", "Bb", "Cb", "Db", "Eb", "Gb",
 ].sort();
 
 const minor_letters = [
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "A#",
-  "C#",
-  "D#",
-  "G#",
-  "Ab",
-  "Bb",
-  "Cb",
-  "Db",
-  "Eb",
-  "Gb",
-].sort();
+  "A", "B", "C", "D", "E", "F", "G", "A#", "C#", "D#", "G#", "Ab", "Bb", "Cb", "Db", "Eb", "Gb",
+].map(l => l.toLowerCase()).sort();
 
 const types = ["maj", "min"];
 const clefs = ["treble", "bass"];
@@ -61,8 +34,8 @@ function App() {
     newGame()
   );
 
-  const cssLetter = letter.replace("#", "s").replace("b", "f").toLowerCase();
-  const className = `${clef}-${cssLetter}-${type}`;
+  const cssLetter = letter.split('').map((l, i) => i < 1 ? l : l.replace("#", "s").replace("b", "f")).join('')
+  const className = `${clef}-${cssLetter.toLowerCase()}-${type}`;
 
   const onClick = (e) => {
     const game = newGame(e.target.textContent === letter)
@@ -74,7 +47,7 @@ function App() {
       <header className="App-header">
         {lastResult !== undefined && (
           <div className='Result' style={{color: lastResult ? 'green' : 'red'}}>
-            {lastResult ? 'GOT IT!' : 'BUMMER'}
+            {lastResult ? 'GOT IT!' : 'BUMMER :('}
           </div>
         )}
         <div className={`App-logo ${className}`} />
