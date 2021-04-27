@@ -184,7 +184,7 @@
 
 .App-header {
   /* background-color: #282c34; */
-  min-height: 100vh;
+  /* min-height: 100vh; */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -198,7 +198,7 @@
 }
 
 .Result {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: white;
   padding: 1rem;
   width: 100%;
@@ -206,7 +206,7 @@
 
 .Answers > button {
   font-size: 1.5rem;
-  /* padding: 0.5rem; */
+  padding: 1rem;
 }
 
 @keyframes App-logo-spin {

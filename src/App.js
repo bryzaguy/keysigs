@@ -1,5 +1,5 @@
 import "./App.css";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 const pickRandom = (arr) => arr[Math.ceil(Math.random() * arr.length) - 1];
 
@@ -19,9 +19,12 @@ const minor_letters = [
 
 const types = ["maj", "min"];
 const clefs = ["treble", "bass"];
+const fails = ['Sorry', 'So close', ':(', 'Ouch', 'Whoops', 'Dang!', 'Answer']
+const levels = ['Major', 'Minor', 'Mixed']
+const currentLevel = 0
 
-const newGame = (lastResult) => {
-  const type = pickRandom(types)
+const play = (lastResult) => {
+  const type = currentLevel < 2 ? types[currentLevel] : pickRandom(types)
   const letters = type === "maj" ? major_letters : minor_letters
   const letter = pickRandom(letters)
   const clef = pickRandom(clefs)
@@ -29,9 +32,15 @@ const newGame = (lastResult) => {
   return { clef, type, letter, letters, lastResult }
 };
 
+function KeySignature ({letter: key}) {
+  return (
+    <Fragment>{key.split('')[0]}<span style={{fontSize: '0.75em'}}>{key.split('')[1] || ''}</span></Fragment>
+  )
+}
+
 function App() {
   const [{ clef, type, letter, letters, lastResult }, setState] = useState(
-    newGame({count: 0})
+    play({count: 0})
   )
 
   const cssLetter = letter.split('').map(
@@ -44,24 +53,26 @@ function App() {
     const count = lastResult.count + 1
     const streak = win ? (lastResult.streak || 0) + 1 : 0
 
-    setState(newGame({ count, streak, win }))
+    setState(play({ count, streak, win, lastLetter: letter }))
   };
 
   return (
     <div className="App">
       <header className="App-header">
-        {lastResult.win !== undefined && (
-          <div className='Result' style={{background: lastResult.win ? 'green' : 'red'}}>
-            <div>{lastResult.win ? 'GOT IT!' : 'BUMMER :('}</div>
-            {lastResult.streak > 1 && (
-              <div style={{fontSize: 20}}>{`(${lastResult.streak} POINT STREAK!)`}</div>
-            )}
-          </div>
-        )}
+        <div className='Result' style={{
+            background: lastResult.win ? 'green' : 'red',
+            visibility: lastResult.win !== undefined ? 'inherit' : 'hidden'
+          }}>
+          <div>{lastResult.win ? (
+            lastResult.streak > 1 ? `${lastResult.streak} POINT STREAK!`: 'NICE!'
+          ) : `${pickRandom(fails)}...${lastResult.lastLetter}`}</div>
+        </div>
         <div className={`App-logo ${className}`} />
         <div className="Answers">
           {letters.map((key) => (
-            <button key={key} onClick={onClick}>{key}</button>
+            <button key={key} onClick={onClick}>
+              <KeySignature letter={key} />
+            </button>
           ))}
         </div>
       </header>
