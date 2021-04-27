@@ -19,15 +19,18 @@ const minor_letters = [
 
 const types = ["maj", "min"];
 const clefs = ["treble", "bass"];
-const fails = ['Sorry', 'So close', ':(', 'Ouch', 'Whoops', 'Dang!', 'Answer']
-// const levels = ['Major', 'Minor', 'Both']
-const currentLevel = 0
-const solved = []
+const fails = ['Sorry', 'So close', ':(', 'Ouch', 'Whoops', 'Oopsie', 'Dang', 'Answer', 'Bummer', 'Crap']
+const levels = ['Major', 'Minor', 'Both']
+
+
+var currentLevel = 0
+var gameComplete = false
+var solved = []
 
 const play = (lastResult) => {
   const type = currentLevel < 2 ? types[currentLevel] : pickRandom(types)
   const letters = type === "maj" ? major_letters : minor_letters
-  const letter = pickRandom(letters)
+  const letter = pickRandom(letters.filter(l => solved.indexOf(l) === -1))
   const clef = pickRandom(clefs)
 
   return { clef, type, letter, letters, lastResult }
@@ -52,27 +55,40 @@ function App() {
   const className = `${clef}-${cssLetter.toLowerCase()}-${type}`
 
   const onClick = (e) => {
-    const win = e.target.textContent === letter
+    var win = e.target.textContent === letter
     const count = lastResult.count + 1
     const streak = win ? (lastResult.streak || 0) + 1 : 0
+    const losses = !win ? (lastResult.losses || 0) + 1 : 0
     win && solved.push(letter)
 
-    console.log(e.target.textContent, letter)
-
-    setState(play({ count, streak, win, lastLetter: letter }))
+    if (solved.length === letters.length) {
+      solved = []
+      currentLevel = Math.min(currentLevel + 1, levels.length - 1)
+      gameComplete = gameComplete || currentLevel === levels.length - 1
+      setState(play({ count: 0 }))
+    } else {
+      setState(play({ count, streak, losses, win, lastLetter: letter }))
+    }
   };
 
   return (
     <div className="App">
+      <link rel="preconnect" href="https://fonts.gstatic.com" /> 
+      <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;900&display=swap" rel="stylesheet"/>
+      <style>{'* { font-family: Roboto }'}</style>
       <header className="App-header">
         <div className='Result' style={{
-            background: lastResult.win ? 'green' : 'red',
-            visibility: lastResult.win !== undefined ? 'inherit' : 'hidden'
+            background: lastResult.win ? 'green' : (lastResult.win === undefined ? (gameComplete ? 'green' : 'inherit') : 'red'),
           }}>
           <div>{lastResult.win ? (
             lastResult.streak > 1 ? `${lastResult.streak} POINT STREAK!`: 'NICE!'
-          ) : `${pickRandom(fails)}...${lastResult.lastLetter}`}</div>
+          ) : (gameComplete ? (
+            <a href={prizeLink} style={{ display: "none" }}>
+              Click here
+            </a>
+          ) : `${pickRandom(fails)}...${lastResult.lastLetter}`)}</div>
         </div>
+        <h4 style={{fontWeight: 300}}>Level {currentLevel + 1}: {levels[currentLevel]}</h4>
         <div className={`App-logo ${className}`} />
         <div className="Answers">
           {letters.map((key) => (
@@ -82,9 +98,6 @@ function App() {
           ))}
         </div>
       </header>
-      <a href={prizeLink} style={{ display: "none" }}>
-        {prizeLink}
-      </a>
     </div>
   );
 }

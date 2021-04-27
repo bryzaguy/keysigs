@@ -190,7 +190,6 @@
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
 }
 
 .App-link {
@@ -199,6 +198,7 @@
 
 .Result {
   font-size: 2.5rem;
+  font-weight: 300;
   color: white;
   padding: 1rem;
   box-sizing: border-box;
