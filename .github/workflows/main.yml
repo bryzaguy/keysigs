@@ -35,6 +35,6 @@ jobs:
         run: |
           git config --global user.email "prefu@hotmail.com"
           git config --global user.name "bryzaguy"
-          git config --global credential.helper wincred
+          git config --global --unset-all credential.helper
           npm ci
           npm run deploy
