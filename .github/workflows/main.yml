@@ -29,6 +29,6 @@ jobs:
       - name: Run a multi-line script
         run: |
           git config --global user.email "prefu@hotmail.com"
-          git config --global user.name "Github Deploy"
+          git config --global user.name "bryzaguy"
           npm install
           npm run deploy
