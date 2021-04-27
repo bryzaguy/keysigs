@@ -21,33 +21,38 @@ const types = ["maj", "min"];
 const clefs = ["treble", "bass"];
 
 const newGame = (lastResult) => {
-  const type = pickRandom(types);
-  const letters = type === "maj" ? major_letters : minor_letters;
-  const letter = pickRandom(letters);
-  const clef = pickRandom(clefs);
+  const type = pickRandom(types)
+  const letters = type === "maj" ? major_letters : minor_letters
+  const letter = pickRandom(letters)
+  const clef = pickRandom(clefs)
 
-  return { clef, type, letter, letters, lastResult };
+  return { clef, type, letter, letters, lastResult }
 };
 
 function App() {
   const [{ clef, type, letter, letters, lastResult }, setState] = useState(
-    newGame()
-  );
+    newGame({})
+  )
 
-  const cssLetter = letter.split('').map((l, i) => i < 1 ? l : l.replace("#", "s").replace("b", "f")).join('')
-  const className = `${clef}-${cssLetter.toLowerCase()}-${type}`;
+  const cssLetter = letter.split('').map(
+    (l, i) => i < 1 ? l : l.replace("#", "s").replace("b", "f")
+  ).join('')
+  const className = `${clef}-${cssLetter.toLowerCase()}-${type}`
 
   const onClick = (e) => {
-    const game = newGame(e.target.textContent === letter)
+    const game = newGame({
+      count: lastResult.count++,
+      win: e.target.textContent === letter
+    })
     setState(game)
   };
 
   return (
     <div className="App">
       <header className="App-header">
-        {lastResult !== undefined && (
-          <div className='Result' style={{color: lastResult ? 'green' : 'red'}}>
-            {lastResult ? 'GOT IT!' : 'BUMMER :('}
+        {lastResult.win !== undefined && (
+          <div className='Result' style={{color: lastResult.win ? 'green' : 'red'}}>
+            {lastResult.win ? 'GOT IT!' : 'BUMMER :('}
           </div>
         )}
         <div className={`App-logo ${className}`} />
