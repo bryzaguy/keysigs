@@ -21,7 +21,7 @@ const types = ["maj", "min"];
 const clefs = ["treble", "bass"];
 const fails = ['Sorry', 'So close', ':(', 'Ouch', 'Whoops', 'Oopsie', 'Dang', 'Answer', 'Bummer', 'Crap']
 const levels = ['Major', 'Minor', 'Both']
-
+// const outcomes = ['initial', 'pass', 'fail']
 
 var currentLevel = 0
 var gameComplete = false
@@ -63,8 +63,8 @@ function App() {
 
     if (solved.length === letters.length) {
       solved = []
+      gameComplete = gameComplete || (currentLevel === levels.length - 1)
       currentLevel = Math.min(currentLevel + 1, levels.length - 1)
-      gameComplete = gameComplete || currentLevel === levels.length - 1
       setState(play({ count: 0 }))
     } else {
       setState(play({ count, streak, losses, win, lastLetter: letter }))
@@ -78,15 +78,22 @@ function App() {
       <style>{'* { font-family: Roboto }'}</style>
       <header className="App-header">
         <div className='Result' style={{
-            background: lastResult.win ? 'green' : (lastResult.win === undefined ? (gameComplete ? 'green' : 'inherit') : 'red'),
-          }}>
-          <div>{lastResult.win ? (
+          background: lastResult.win ? 'green' : (
+            lastResult.win === false ? 'red' : (
+              gameComplete ? 'green' : 'lightgrey'
+            )
+          ),
+          position: 'relative', overflow: 'hidden'
+        }}>
+          <div style={{position: 'relative'}}>
+            {lastResult.win ? (
             lastResult.streak > 1 ? `${lastResult.streak} POINT STREAK!`: 'NICE!'
-          ) : (gameComplete ? (
-            <a href={prizeLink} style={{ display: "none" }}>
+          ) : (!gameComplete ? (
+            <a href={prizeLink} target='_blank' rel="noreferrer" style={{color: 'white'}}>
               Click here
             </a>
-          ) : `${pickRandom(fails)}...${lastResult.lastLetter}`)}</div>
+          ) : (lastResult.lastLetter ? `${pickRandom(fails)}...${lastResult.lastLetter}` : 'READY?'))}
+          </div>
         </div>
         <h4 style={{fontWeight: 300}}>Level {currentLevel + 1}: {levels[currentLevel]}</h4>
         <div className={`App-logo ${className}`} />

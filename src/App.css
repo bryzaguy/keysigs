@@ -210,6 +210,28 @@
   padding: 1rem;
 }
 
+.Splash {
+  /* codes */
+  position: fixed;
+  display: flex;
+  background: rgba(0,0,0,0.5);
+  vertical-align: middle;
+  transition: 0.5s;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 2rem;
+}
+
+.Splash_image {
+  /* position: absolute; */
+  /* height: 100%; */
+  align-self: center;
+  box-shadow: 0 0 30px rgba(0,0,0,0.5);
+  width: 100%;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
