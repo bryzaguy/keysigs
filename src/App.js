@@ -88,7 +88,7 @@ function App() {
           <div style={{position: 'relative'}}>
             {lastResult.win ? (
             lastResult.streak > 1 ? `${lastResult.streak} POINT STREAK!`: 'NICE!'
-          ) : (!gameComplete ? (
+          ) : (gameComplete ? (
             <a href={prizeLink} target='_blank' rel="noreferrer" style={{color: 'white'}}>
               Click here
             </a>
