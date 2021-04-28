@@ -14,23 +14,21 @@ const major_letters = [
 ].sort();
 
 const minor_letters = [
-  "A", "B", "C", "D", "E", "F", "G", "A#", "C#", "D#", "F#", "G#", "Ab", "Bb", "Eb",
+  "A", "B", "C", "D", "E", "F", "G", "A#", "C#", "D#", "F#", "G#", "Ab", "Bb", "Eb"
 ].map(l => l.toLowerCase()).sort();
 
-const types = ["maj", "min"];
 const clefs = ["treble", "bass"];
 const fails = ['Sorry', 'So close', ':(', 'Ouch', 'Whoops', 'Oopsie', 'Dang', 'Answer', 'Bummer', 'Crap']
 const levels = ['Major', 'Minor', 'Both']
-// const outcomes = ['initial', 'pass', 'fail']
 
 var currentLevel = 0
 var gameComplete = false
 var solved = []
 
 const play = (lastResult) => {
-  const type = currentLevel < 2 ? types[currentLevel] : pickRandom(types)
-  const letters = type === "maj" ? major_letters : minor_letters
+  const letters = [major_letters, minor_letters][currentLevel] || major_letters.concat(minor_letters)
   const letter = pickRandom(letters.filter(l => solved.indexOf(l) === -1))
+  const type = major_letters.indexOf(letter) > -1 ? 'maj' : 'min'
   const clef = pickRandom(clefs)
 
   return { clef, type, letter, letters, lastResult }
@@ -82,8 +80,7 @@ function App() {
             lastResult.win === false ? 'red' : (
               gameComplete ? 'green' : 'lightgrey'
             )
-          ),
-          position: 'relative', overflow: 'hidden'
+          )
         }}>
           <div style={{position: 'relative'}}>
             {lastResult.win ? (
@@ -95,7 +92,7 @@ function App() {
           ) : (lastResult.lastLetter ? `${pickRandom(fails)}...${lastResult.lastLetter}` : 'READY?'))}
           </div>
         </div>
-        <h4 style={{fontWeight: 300}}>Level {currentLevel + 1}: {levels[currentLevel]}</h4>
+        <h4 style={{fontWeight: 300}}>Level {currentLevel + 1}: {levels[currentLevel]} ({letters.length - solved.length} left)</h4>
         <div className={`App-logo ${className}`} />
         <div className="Answers">
           {letters.map((key) => (
