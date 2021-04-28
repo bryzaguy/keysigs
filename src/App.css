@@ -207,6 +207,62 @@
   overflow: hidden;
 }
 
+.LevelStar {
+  display: flex;
+  align-items: center;
+}
+
+.LevelStars {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+  margin: 1rem;
+}
+
+.pulse {
+  animation: pulse;
+  animation-iteration-count: infinite;
+  animation-duration: 2s;
+}
+
+.wow {
+  animation: wow;
+  animation-timing-function: linear;
+  animation-duration: 0.55s;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0.25;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes wow {
+  0% {
+    transform: rotate(0turn) scale(1);
+    transform-origin: center;
+  }
+  50% {
+    transform: rotate(.5turn) scale(10);
+    transform-origin: center;
+  }
+  100% {
+    transform: rotate(1turn) scale(1);
+    transform-origin: center;
+  }
+}
+
+.KeyAugment {
+  font-size: 0.75em;
+  pointer-events: none;
+}
+
 .Answers > button {
   font-size: 1.5rem;
   padding: 1rem;

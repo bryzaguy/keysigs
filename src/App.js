@@ -19,44 +19,49 @@ const minor_letters = [
 
 const clefs = ["treble", "bass"];
 const fails = ['Sorry', 'So close', ':(', 'Ouch', 'Whoops', 'Oopsie', 'Dang', 'Answer', 'Bummer', 'Crap']
+const wins = ['Nice!', 'Cool!', 'Huzzah!', 'Pow!', 'Booyah!', 'Zing!', 'Cha-ching!', 'Dope!', 'Sick!']
 const levels = ['Major', 'Minor', 'Both']
+const levelLabel = {
+  maj: 'Major',
+  min: 'Minor'
+}
 
 var currentLevel = 0
 var gameComplete = false
 var solved = []
 
-const play = (lastResult) => {
+const play = (previous) => {
   const letters = [major_letters, minor_letters][currentLevel] || major_letters.concat(minor_letters)
   const letter = pickRandom(letters.filter(l => solved.indexOf(l) === -1))
   const type = major_letters.indexOf(letter) > -1 ? 'maj' : 'min'
   const clef = pickRandom(clefs)
 
-  return { clef, type, letter, letters, lastResult }
+  return { clef, type, letter, letters, previous }
 };
 
-function KeySignature ({letter: key}) {
-  return (
-    <Fragment>{key.split('')[0]}<span style={{
-      fontSize: '0.75em', pointerEvents: 'none'
-    }}>{key.split('')[1] || ''}</span></Fragment>
-  )
-}
-
 function App() {
-  const [{ clef, type, letter, letters, lastResult }, setState] = useState(
+  const [{ clef, type, letter, letters, previous }, setState] = useState(
     play({count: 0})
   )
+  const remainingCount = letters.length - solved.length
+  const headerColor = previous.win || gameComplete ? 'green' : (
+    previous.win === false ? 'red' : 'lightgrey'
+  )
 
-  const cssLetter = letter.split('').map(
-    (l, i) => i < 1 ? l : l.replace("#", "s").replace("b", "f")
-  ).join('')
-  const className = `${clef}-${cssLetter.toLowerCase()}-${type}`
+  const bannerContent = previous.win ? (
+    previous.streak > 1 ? `${previous.streak} POINT STREAK!`: pickRandom(wins)
+  ) : (gameComplete ? (
+      <Prize />
+    ) : (previous.lastLetter ? 
+      <KeySignature letter={previous.lastLetter}>
+        {pickRandom(fails)}...
+      </KeySignature> : 'READY?'))
 
   const onClick = (e) => {
     var win = e.target.textContent === letter
-    const count = lastResult.count + 1
-    const streak = win ? (lastResult.streak || 0) + 1 : 0
-    const losses = !win ? (lastResult.losses || 0) + 1 : 0
+    const count = previous.count + 1
+    const streak = win ? (previous.streak || 0) + 1 : 0
+    const losses = !win ? (previous.losses || 0) + 1 : 0
     win && solved.push(letter)
 
     if (solved.length === letters.length) {
@@ -71,39 +76,116 @@ function App() {
 
   return (
     <div className="App">
-      <link rel="preconnect" href="https://fonts.gstatic.com" /> 
-      <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;900&display=swap" rel="stylesheet"/>
-      <style>{'* { font-family: Roboto }'}</style>
+      <RobotoFont />
       <header className="App-header">
-        <div className='Result' style={{
-          background: lastResult.win ? 'green' : (
-            lastResult.win === false ? 'red' : (
-              gameComplete ? 'green' : 'lightgrey'
-            )
-          )
-        }}>
-          <div style={{position: 'relative'}}>
-            {lastResult.win ? (
-            lastResult.streak > 1 ? `${lastResult.streak} POINT STREAK!`: 'NICE!'
-          ) : (gameComplete ? (
-            <a href={prizeLink} target='_blank' rel="noreferrer" style={{color: 'white'}}>
-              Click here
-            </a>
-          ) : (lastResult.lastLetter ? `${pickRandom(fails)}...${lastResult.lastLetter}` : 'READY?'))}
-          </div>
-        </div>
-        <h4 style={{fontWeight: 300}}>Level {currentLevel + 1}: {levels[currentLevel]} ({letters.length - solved.length} left)</h4>
-        <div className={`App-logo ${className}`} />
-        <div className="Answers">
-          {letters.map((key) => (
-            <button key={key} onClick={onClick}>
-              <KeySignature letter={key} />
-            </button>
-          ))}
-        </div>
+        <Banner color={headerColor} previous={previous}>{bannerContent}</Banner>
+        <LevelStars level={currentLevel} />
+        <LevelHeader type={levelLabel[type]} remainingCount={remainingCount} />
+        <KeySignatureImage letter={letter} clef={clef} type={type} />
+        <KeySignatureButtons letters={type === 'maj' ? major_letters : minor_letters} onClick={onClick} />
       </header>
     </div>
   );
+}
+
+function LevelStars ({level}) {
+  return (
+    <div className="LevelStars">
+      {levels.map((_, levelIndex) => {
+        const isCurrentLevel = level === levelIndex
+        const isComplete = level > levelIndex
+        const color = isCurrentLevel ? 'darkgrey' : (
+          isComplete ? 'green' : 'lightgrey'
+        )
+        const animation = isCurrentLevel && !gameComplete ? 'pulse' : (
+          isComplete ? 'wow' : ''
+        )
+
+        return (
+          <span className="LevelStar">
+            Level {levelIndex + 1}: &nbsp;
+            <Star color={color} animation={animation} repeatAnimation={isCurrentLevel} />
+          </span>
+        )
+      })}
+    </div>
+  )
+}
+
+function Star ({color, animation, repeatAnimation}) {
+  return (
+    <svg className={`Star ${animation}`} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <path style={{
+        fill: color
+      }} d="M12 .587l3.668 7.568 8.332 1.151-6.064 5.828 1.48 8.279-7.416-3.967-7.417 3.967 1.481-8.279-6.064-5.828 8.332-1.151z"/>
+    </svg>
+  )
+}
+
+function KeySignature ({letter: key, children}) {
+  const [first, second] = key.split('')
+  return (
+    <Fragment>{children}{first}<span className="KeyAugment">{second || ''}</span></Fragment>
+  )
+}
+
+function KeySignatureButtons ({letters, onClick}) {
+  return (
+    <div className="Answers">
+      {letters.map((key) => (
+        <button key={key} onClick={onClick}>
+          <KeySignature letter={key} />
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function Banner ({color, children}) {
+  return (
+    <div className='Result' style={{ background: color }}>
+      <div style={{position: 'relative'}}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function LevelHeader ({type, remainingCount}) {
+  return (
+    <h2 style={{fontWeight: 300}}>
+      {type} ({remainingCount} left)
+    </h2>
+  )
+}
+
+function KeySignatureImage ({letter, clef, type}) {
+  const [first, second] = letter.split('')
+  const cssSecond = (second || '').replace("#", "s").replace("b", "f")
+  const cssLetter = first + cssSecond
+  const className = `${clef}-${cssLetter.toLowerCase()}-${type}`
+
+  return (
+    <div className={`App-logo ${className}`} />
+  )
+}
+
+function Prize () {
+  return (
+    <a href={prizeLink} target='_blank' rel="noreferrer" style={{color: 'white'}}>
+      Click here for prize!
+    </a>
+  )
+}
+
+function RobotoFont () {
+  return (
+    <Fragment>
+      <link rel="preconnect" href="https://fonts.gstatic.com" /> 
+      <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;900&display=swap" rel="stylesheet"/>
+      <style>{'* { font-family: Roboto }'}</style>
+    </Fragment>
+  )
 }
 
 export default App;
