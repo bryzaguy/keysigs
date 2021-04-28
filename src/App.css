@@ -205,6 +205,8 @@
   width: 100%;
   position: relative;
   overflow: hidden;
+  transition: 0.5s;
+  min-height: 0;
 }
 
 .LevelStar {

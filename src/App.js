@@ -93,12 +93,12 @@ function LevelStars ({level}) {
     <div className="LevelStars">
       {levels.map((_, levelIndex) => {
         const isCurrentLevel = level === levelIndex
-        const isComplete = level > levelIndex
-        const color = isCurrentLevel ? 'darkgrey' : (
-          isComplete ? 'green' : 'lightgrey'
+        const isComplete = level > levelIndex || gameComplete
+        const color = isComplete ? 'green' : (
+          isCurrentLevel ? 'darkgrey' : 'lightgrey'
         )
-        const animation = isCurrentLevel && !gameComplete ? 'pulse' : (
-          isComplete ? 'wow' : ''
+        const animation = isComplete ? 'wow' : (
+          isCurrentLevel ? 'pulse' : ''
         )
 
         return (
@@ -143,7 +143,7 @@ function KeySignatureButtons ({letters, onClick}) {
 
 function Banner ({color, children}) {
   return (
-    <div className='Result' style={{ background: color }}>
+    <div className='Result' style={{ backgroundColor: color }}>
       <div style={{position: 'relative'}}>
         {children}
       </div>
