@@ -3,8 +3,15 @@ import { Fragment, useState } from "react";
 
 const pickRandom = (arr) => arr[Math.ceil(Math.random() * arr.length) - 1];
 
-// Streak score
-// Time multiplier
+// TODO:
+//   - Ready screen with "Play" to start new game. Changes from "Ready?" to "Go!"
+//   - Links allow playing previous levels, underline level like link, store completed levels rather than calculate.
+//   - Save/load progress from localStorage
+//   - Giphy Splash for Ready, Success on win, timed on every Fail
+//   - High score (correct answers are 100 pts)
+//     - Streak multiplier (100 * 10)
+//     - Time multiplier which (carries over?) (halves every 3 seconds) 10x, 5x, 2x
+//   - Adjust pictures so all the key signature bars line up
 
 const prizeLink =
   "https://docs.google.com/document/d/1e8bCDXDnz1Y-qnNY2vTknYMVThinHRO2Ur9eF1V1DZk/edit?usp=sharing";
@@ -39,6 +46,19 @@ const play = (previous) => {
   return { clef, type, letter, letters, previous }
 };
 
+const giphyApiKey = '6RG4B2rBB6eP4QCDrxs7w0uZnflH6n9z'
+const giphy = search => fetch(
+  `https://api.giphy.com/v1/gifs/search?api_key=${giphyApiKey}&q=${search}&limit=20&offset=0&rating=g&lang=en`
+).then(a => a.json()).then(a => a.data.map(b => b.images.downsized_medium.url))
+
+var successImages = [], failImages = [], readyImages = []
+const allPromises = Promise.all([giphy('success'), giphy('fail'), giphy('ready')])
+allPromises.then(([success, fail, ready]) => {
+  successImages = success
+  failImages = fail
+  readyImages = ready
+})
+
 function App() {
   const [{ clef, type, letter, letters, previous }, setState] = useState(
     play({count: 0})
@@ -47,15 +67,6 @@ function App() {
   const headerColor = previous.win || gameComplete ? 'green' : (
     previous.win === false ? 'red' : 'lightgrey'
   )
-
-  const bannerContent = previous.win ? (
-    previous.streak > 1 ? `${previous.streak} POINT STREAK!`: pickRandom(wins)
-  ) : (gameComplete ? (
-      <Prize />
-    ) : (previous.lastLetter ? 
-      <KeySignature letter={previous.lastLetter}>
-        {pickRandom(fails)}...
-      </KeySignature> : 'READY?'))
 
   const onClick = (e) => {
     var win = e.target.textContent === letter
@@ -78,14 +89,39 @@ function App() {
     <div className="App">
       <RobotoFont />
       <header className="App-header">
-        <Banner color={headerColor} previous={previous}>{bannerContent}</Banner>
+        <Banner color={headerColor}>
+          <BannerContent letter={previous.lastLetter} streak={previous.streak} win={previous.win} />
+        </Banner>
         <LevelStars level={currentLevel} />
         <LevelHeader type={levelLabel[type]} remainingCount={remainingCount} />
         <KeySignatureImage letter={letter} clef={clef} type={type} />
         <KeySignatureButtons letters={type === 'maj' ? major_letters : minor_letters} onClick={onClick} />
       </header>
+      <LoadImages />
     </div>
   );
+}
+
+function LoadImages () {
+  return (
+    <div style={{height: 0, width: 0, position: 'absolute', overflow: 'hidden'}}>
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
+      {successImages.concat(failImages).concat(readyImages).map(url => <img key={url} src={url} />)}
+    </div>
+  )
+}
+
+function BannerContent ({win, letter: failLetter, streak}) {
+  const failMessage = (
+    <KeySignature letter={failLetter}>
+      {pickRandom(fails)}...
+    </KeySignature>
+  )
+
+  const fail = failLetter ? failMessage : (gameComplete ? <Prize /> : 'READY?')
+  const pass = streak > 1 ? `${streak} POINT STREAK!`: pickRandom(wins)
+
+  return win ? pass : fail
 }
 
 function LevelStars ({level}) {
