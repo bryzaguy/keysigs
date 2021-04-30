@@ -51,7 +51,7 @@ const giphyApiKey = '6RG4B2rBB6eP4QCDrxs7w0uZnflH6n9z'
 const giphy = search => fetch(
   `https://api.giphy.com/v1/gifs/search?api_key=${giphyApiKey}&q=${search}&limit=20&offset=0&rating=g&lang=en`
 ).then(a => a.json()).then(a => a.data.map(b => (
-  [b.images.fixed_height.url, b.images.fixed_height.height]
+  [b.images.fixed_height.url, b.images.fixed_height.height, b.images.original.frames]
 )))
 
 var images = {
@@ -72,8 +72,13 @@ function App() {
 
   if (!loaded) {
     allPromises.then(() => {
-      setBanner({title: 'Ready?', splash: pickRandom(images.ready)})
-      loaded = true
+      setTimeout(() => {
+        loaded = true
+        setBanner({
+          title: 'Ready?',
+          splash: pickRandom(images.ready)
+        })
+      }, 500)
     })
   }
 
@@ -123,14 +128,19 @@ function App() {
           color: 'red'
         }
 
+        const splash = pickRandom(images.fail)
         setBanner({
-          splash: pickRandom(images.fail),
+          splash: splash,
           ...fail
         })
+        const frames = parseInt(splash[2])
+        const fps = 1000 / 15
+        const latency = 1000
+        const wait = Math.max((frames * fps) + latency, 3000)
         setTimeout(() => {
           setBanner(fail)
           setGame(play({ count, streak, losses, win, lastLetter: letter }))
-        }, 5000)
+        }, wait)
       }
     }
   };
@@ -246,7 +256,7 @@ function Banner ({color, height, children}) {
         alignItems: 'center',
         transition: '0.5s',
         overflow: 'hidden',
-        height: height || '2.5rem'        
+        height: height || '3rem'        
       }}>
         {children}
       </div>
