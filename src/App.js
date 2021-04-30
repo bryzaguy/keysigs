@@ -136,7 +136,7 @@ function App() {
         const frames = parseInt(splash[2])
         const fps = 1000 / 15
         const latency = 1000
-        const wait = Math.max((frames * fps) + latency, 3000)
+        const wait = Math.max((frames * fps) + latency, 5000)
         setTimeout(() => {
           setBanner(fail)
           setGame(play({ count, streak, losses, win, lastLetter: letter }))
