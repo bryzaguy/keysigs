@@ -33,8 +33,10 @@ const levelLabel = {
   min: 'Minor'
 }
 
-var currentLevel = 0
-var gameComplete = false
+var {currentLevel, levelsCompleted} = JSON.parse(
+  localStorage.getItem('stats')
+) || {currentLevel: 0, levelsCompleted: 0}
+
 var solved = []
 
 const play = (previous) => {
@@ -52,7 +54,7 @@ const giphy = search => fetch(
     giphyApiKey
   }&q=${
     search
-  }&limit=40&offset=${
+  }&limit=30&offset=${
     random(1000)
   }&rating=g&lang=en`
 ).then(a => a.json()).then(a => a.data.map(b => (
@@ -99,10 +101,11 @@ function App() {
 
     if (solved.length === letters.length) {
       solved = []
-      gameComplete = gameComplete || (currentLevel === levels.length - 1)
+      levelsCompleted = Math.min(levelsCompleted + 1, 3)
       currentLevel = Math.min(currentLevel + 1, levels.length - 1)
+      localStorage.setItem('stats', JSON.stringify({currentLevel, levelsCompleted}))
       setBanner({
-        title: gameComplete ? <Prize /> : pickRandom(wins),
+        title: levelsCompleted === 3 ? <Prize /> : pickRandom(wins),
         splash: pickRandom(images.success),
         color: 'green'
       })
@@ -203,7 +206,7 @@ function LevelStars ({level}) {
     <div className="LevelStars">
       {levels.map((_, levelIndex) => {
         const isCurrentLevel = level === levelIndex
-        const isComplete = level > levelIndex || gameComplete
+        const isComplete = level > levelIndex || levelsCompleted === 3
         const color = isComplete ? 'green' : (
           isCurrentLevel ? 'darkgrey' : 'lightgrey'
         )
