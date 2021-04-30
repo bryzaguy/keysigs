@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import "./App.css";
 import { Fragment, useState } from "react";
 
@@ -49,24 +50,35 @@ const play = (previous) => {
 const giphyApiKey = '6RG4B2rBB6eP4QCDrxs7w0uZnflH6n9z'
 const giphy = search => fetch(
   `https://api.giphy.com/v1/gifs/search?api_key=${giphyApiKey}&q=${search}&limit=20&offset=0&rating=g&lang=en`
-).then(a => a.json()).then(a => a.data.map(b => b.images.downsized_medium.url))
+).then(a => a.json()).then(a => a.data.map(b => (
+  [b.images.fixed_height.url, b.images.fixed_height.height]
+)))
 
-var successImages = [], failImages = [], readyImages = []
+var images = {
+  success: [],
+  fail: [],
+  ready: []
+}
+
+var loaded = false
 const allPromises = Promise.all([giphy('success'), giphy('fail'), giphy('ready')])
 allPromises.then(([success, fail, ready]) => {
-  successImages = success
-  failImages = fail
-  readyImages = ready
+  images = {success, fail, ready}
 })
 
 function App() {
-  const [{ clef, type, letter, letters, previous }, setState] = useState(
-    play({count: 0})
-  )
+  const [game, setGame] = useState(null)
+  const [banner, setBanner] = useState({title: 'Loading...'})
+
+  if (!loaded) {
+    allPromises.then(() => {
+      setBanner({title: 'Ready?', splash: pickRandom(images.ready)})
+      loaded = true
+    })
+  }
+
+  const { clef, type, letter, letters = [], previous = {} } = game || {}
   const remainingCount = letters.length - solved.length
-  const headerColor = previous.win || gameComplete ? 'green' : (
-    previous.win === false ? 'red' : 'lightgrey'
-  )
 
   const onClick = (e) => {
     var win = e.target.textContent === letter
@@ -79,49 +91,92 @@ function App() {
       solved = []
       gameComplete = gameComplete || (currentLevel === levels.length - 1)
       currentLevel = Math.min(currentLevel + 1, levels.length - 1)
-      setState(play({ count: 0 }))
+      setBanner(gameComplete ? {title: <Prize />, color: 'green'} : {title: 'READY?'})
+      setGame(null)
     } else {
-      setState(play({ count, streak, losses, win, lastLetter: letter }))
+      if (win) {
+        const color = 'green'
+        if (streak > 1) {
+          setBanner({
+            title: (
+              <span style={{fontSize: 'smaller'}}>
+                {streak} POINT STREAK!
+              </span>
+            ),
+            color
+          })
+        } else {
+          setBanner({title: pickRandom(wins), color})
+        }
+        setGame(play({ count, streak, losses, win, lastLetter: letter }))
+      } else {
+        const fail = {
+          title: (
+            <KeySignature letter={letter}>
+              {pickRandom(fails)}...
+            </KeySignature>
+          ),
+          color: 'red'
+        }
+
+        setBanner({
+          splash: pickRandom(images.fail),
+          ...fail
+        })
+        setTimeout(() => {
+          setBanner(fail)
+          setGame(play({ count, streak, losses, win, lastLetter: letter }))
+        }, 5000)
+      }
     }
   };
+
+  const onPlayClick = () => {
+    setBanner({title: 'GO!'})
+    setGame(play({count: 0}))
+  }
+
+  const [url, height] = banner.splash || []
+  const letterButtons = type === 'maj' ? major_letters : minor_letters
 
   return (
     <div className="App">
       <RobotoFont />
       <header className="App-header">
-        <Banner color={headerColor}>
-          <BannerContent letter={previous.lastLetter} streak={previous.streak} win={previous.win} />
+        <Banner color={banner.color} height={height && `calc(${height}px + 3.5rem)`}>
+          {banner.title}
+          {url && <img src={url} style={{maxWidth: '100%', marginTop: '0.5rem'}} />}
         </Banner>
         <LevelStars level={currentLevel} />
-        <LevelHeader type={levelLabel[type]} remainingCount={remainingCount} />
-        <KeySignatureImage letter={letter} clef={clef} type={type} />
-        <KeySignatureButtons letters={type === 'maj' ? major_letters : minor_letters} onClick={onClick} />
+        {letter && (
+          <Fragment>
+            <LevelHeader type={levelLabel[type]} remainingCount={remainingCount} />
+            <KeySignatureImage letter={letter} clef={clef} type={type} />
+            {!banner.splash && (
+              <KeySignatureButtons letters={letterButtons} onClick={onClick} />
+            )}
+          </Fragment>
+        )}
+        {game == null && <PlayButton onClick={onPlayClick} />}
       </header>
-      <LoadImages />
+      {loaded && <LoadImages />}
     </div>
   );
 }
 
-function LoadImages () {
+function PlayButton ({onClick}) {
   return (
-    <div style={{height: 0, width: 0, position: 'absolute', overflow: 'hidden'}}>
-      {/* eslint-disable-next-line jsx-a11y/alt-text */}
-      {successImages.concat(failImages).concat(readyImages).map(url => <img key={url} src={url} />)}
-    </div>
+    <button style={{fontSize: '1.5rem', padding: '1rem'}} onClick={onClick}>Play!</button>
   )
 }
 
-function BannerContent ({win, letter: failLetter, streak}) {
-  const failMessage = (
-    <KeySignature letter={failLetter}>
-      {pickRandom(fails)}...
-    </KeySignature>
+function LoadImages () {
+  const {success, fail, ready} = images
+  return (
+    <div style={{height: 0, width: 0, position: 'absolute', overflow: 'hidden'}}>
+      {success.concat(fail).concat(ready).map(url => <img key={url} src={url} />)}
+    </div>
   )
-
-  const fail = failLetter ? failMessage : (gameComplete ? <Prize /> : 'READY?')
-  const pass = streak > 1 ? `${streak} POINT STREAK!`: pickRandom(wins)
-
-  return win ? pass : fail
 }
 
 function LevelStars ({level}) {
@@ -138,9 +193,9 @@ function LevelStars ({level}) {
         )
 
         return (
-          <span className="LevelStar">
+          <span key={levelIndex} className="LevelStar">
             Level {levelIndex + 1}: &nbsp;
-            <Star color={color} animation={animation} repeatAnimation={isCurrentLevel} />
+            <Star color={color} animation={animation} />
           </span>
         )
       })}
@@ -148,7 +203,7 @@ function LevelStars ({level}) {
   )
 }
 
-function Star ({color, animation, repeatAnimation}) {
+function Star ({color, animation}) {
   return (
     <svg className={`Star ${animation}`} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
       <path style={{
@@ -161,7 +216,7 @@ function Star ({color, animation, repeatAnimation}) {
 function KeySignature ({letter: key, children}) {
   const [first, second] = key.split('')
   return (
-    <Fragment>{children}{first}<span className="KeyAugment">{second || ''}</span></Fragment>
+    <span>{children}{first}<span className="KeyAugment">{second || ''}</span></span>
   )
 }
 
@@ -177,10 +232,18 @@ function KeySignatureButtons ({letters, onClick}) {
   )
 }
 
-function Banner ({color, children}) {
+function Banner ({color, height, children}) {
   return (
-    <div className='Result' style={{ backgroundColor: color }}>
-      <div style={{position: 'relative'}}>
+    <div className='Result' style={{ backgroundColor: color || 'lightgrey' }}>
+      <div style={{
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        transition: '0.5s',
+        overflow: 'hidden',
+        height: height || '2.5rem'        
+      }}>
         {children}
       </div>
     </div>
