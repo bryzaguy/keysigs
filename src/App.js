@@ -91,7 +91,11 @@ function App() {
       solved = []
       gameComplete = gameComplete || (currentLevel === levels.length - 1)
       currentLevel = Math.min(currentLevel + 1, levels.length - 1)
-      setBanner(gameComplete ? {title: <Prize />, color: 'green'} : {title: 'READY?'})
+      setBanner({
+        title: gameComplete ? <Prize /> : pickRandom(wins),
+        splash: pickRandom(images.success),
+        color: 'green'
+      })
       setGame(null)
     } else {
       if (win) {
