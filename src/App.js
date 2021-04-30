@@ -2,13 +2,12 @@
 import "./App.css";
 import { Fragment, useState } from "react";
 
-const pickRandom = (arr) => arr[Math.ceil(Math.random() * arr.length) - 1];
+const random = range => Math.ceil(Math.random() * range) - 1
+const pickRandom = arr => arr[random(arr.length)];
 
 // TODO:
-//   - Ready screen with "Play" to start new game. Changes from "Ready?" to "Go!"
 //   - Links allow playing previous levels, underline level like link, store completed levels rather than calculate.
 //   - Save/load progress from localStorage
-//   - Giphy Splash for Ready, Success on win, timed on every Fail
 //   - High score (correct answers are 100 pts)
 //     - Streak multiplier (100 * 10)
 //     - Time multiplier which (carries over?) (halves every 3 seconds) 10x, 5x, 2x
@@ -49,7 +48,13 @@ const play = (previous) => {
 
 const giphyApiKey = '6RG4B2rBB6eP4QCDrxs7w0uZnflH6n9z'
 const giphy = search => fetch(
-  `https://api.giphy.com/v1/gifs/search?api_key=${giphyApiKey}&q=${search}&limit=20&offset=0&rating=g&lang=en`
+  `https://api.giphy.com/v1/gifs/search?api_key=${
+    giphyApiKey
+  }&q=${
+    search
+  }&limit=40&offset=${
+    random(1000)
+  }&rating=g&lang=en`
 ).then(a => a.json()).then(a => a.data.map(b => (
   [b.images.fixed_height.url, b.images.fixed_height.height, b.images.original.frames]
 )))
