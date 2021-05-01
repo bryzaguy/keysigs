@@ -95,7 +95,7 @@ function App() {
           ),
           color: 'green'
         })
-      }, 2000)
+      }, 1000)
 
       return () => clearTimeout(bonusTimer)
     }
