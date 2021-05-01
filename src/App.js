@@ -6,7 +6,6 @@ const random = range => Math.ceil(Math.random() * range) - 1
 const pickRandom = arr => arr[random(arr.length)];
 
 // TODO:
-//   - Links allow playing previous levels, underline level like link, store completed levels rather than calculate.
 //   - High score (correct answers are 100 pts)
 //     - Streak multiplier (100 * 10)
 //     - Time multiplier which (carries over?) (halves every 3 seconds) 10x, 5x, 2x
@@ -211,7 +210,7 @@ function LevelStars ({level, onClick = () => {}}) {
     <div className="LevelStars">
       {levels.map((_, levelIndex) => {
         const isCurrentLevel = level === levelIndex
-        const isComplete = level > levelIndex || levelsCompleted === 3
+        const isComplete = levelIndex < levelsCompleted
         const color = isComplete ? 'green' : (
           isCurrentLevel ? 'darkgrey' : 'lightgrey'
         )
@@ -220,15 +219,17 @@ function LevelStars ({level, onClick = () => {}}) {
           isCurrentLevel && 'pulse',
         ].filter(a => a).join(' ')
 
+        const isPlayable = levelIndex <= levelsCompleted
+
         const style = {
           border: '1px solid #CCC',
           padding: '0.25rem 0.5rem',
           borderRadius: '3px',
           boxShadow: `2px 4px 6px rgba(0,0,0,${isCurrentLevel ? '0.35' : '0.15'})`,
-          opacity: !isComplete && !isCurrentLevel && 0.5
+          opacity: !isPlayable && 0.25
         }
 
-        const onLevelClick = () => isComplete && onClick(levelIndex)
+        const onLevelClick = () => isPlayable && onClick(levelIndex)
 
         return (
           <span key={levelIndex} className="LevelStar" style={style} onClick={onLevelClick}>
