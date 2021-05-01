@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.css": "/keysigs/static/css/main.9488f34c.chunk.css",
-    "main.js": "/keysigs/static/js/main.a1bab72d.chunk.js",
-    "main.js.map": "/keysigs/static/js/main.a1bab72d.chunk.js.map",
+    "main.css": "/keysigs/static/css/main.81cd54fc.chunk.css",
+    "main.js": "/keysigs/static/js/main.3c4fd18b.chunk.js",
+    "main.js.map": "/keysigs/static/js/main.3c4fd18b.chunk.js.map",
     "runtime-main.js": "/keysigs/static/js/runtime-main.3f2f5171.js",
     "runtime-main.js.map": "/keysigs/static/js/runtime-main.3f2f5171.js.map",
     "static/js/2.75bfe1be.chunk.js": "/keysigs/static/js/2.75bfe1be.chunk.js",
@@ -10,14 +10,14 @@
     "static/js/3.2e6e43da.chunk.js": "/keysigs/static/js/3.2e6e43da.chunk.js",
     "static/js/3.2e6e43da.chunk.js.map": "/keysigs/static/js/3.2e6e43da.chunk.js.map",
     "index.html": "/keysigs/index.html",
-    "static/css/main.9488f34c.chunk.css.map": "/keysigs/static/css/main.9488f34c.chunk.css.map",
+    "static/css/main.81cd54fc.chunk.css.map": "/keysigs/static/css/main.81cd54fc.chunk.css.map",
     "static/js/2.75bfe1be.chunk.js.LICENSE.txt": "/keysigs/static/js/2.75bfe1be.chunk.js.LICENSE.txt",
     "static/media/App.css": "/keysigs/static/media/AB_KeySignatureID.061e1c1b.jpg"
   },
   "entrypoints": [
     "static/js/runtime-main.3f2f5171.js",
     "static/js/2.75bfe1be.chunk.js",
-    "static/css/main.9488f34c.chunk.css",
-    "static/js/main.a1bab72d.chunk.js"
+    "static/css/main.81cd54fc.chunk.css",
+    "static/js/main.3c4fd18b.chunk.js"
   ]
 }
