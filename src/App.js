@@ -112,10 +112,10 @@ function App() {
 
     if (solved.length === letters.length) {
       solved = []
-      if (currentLevel < levelsCompleted) {
-        currentLevel = Math.min(currentLevel + 1, levels.length - 1)
+      if (levelsCompleted < 3 && currentLevel === levelsCompleted) {
+        currentLevel = currentLevel + 1
+        levelsCompleted = levelsCompleted + 1
       }
-      levelsCompleted = Math.min(levelsCompleted + 1, 3)
       highScore = Math.max(highScore, score)
       localStorage.setItem('stats', JSON.stringify({currentLevel, levelsCompleted, highScore}))
       setBanner({
