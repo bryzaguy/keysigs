@@ -1,14 +1,9 @@
 /* eslint-disable jsx-a11y/alt-text */
 import "./App.css";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 const random = range => Math.ceil(Math.random() * range) - 1
 const pickRandom = arr => arr[random(arr.length)];
-
-// TODO:
-//   - High score (correct answers are 100 pts)
-//     - Streak multiplier (100 * 10)
-//     - Time multiplier which (carries over?) (halves every 3 seconds) 10x, 5x, 2x
 
 const prizeLink =
   "https://docs.google.com/document/d/1e8bCDXDnz1Y-qnNY2vTknYMVThinHRO2Ur9eF1V1DZk/edit?usp=sharing";
@@ -25,14 +20,10 @@ const clefs = ["treble", "bass"];
 const fails = ['Sorry', 'So close', ':(', 'Ouch', 'Whoops', 'Oopsie', 'Dang', 'Answer', 'Bummer', 'Crap']
 const wins = ['Nice!', 'Cool!', 'Huzzah!', 'Pow!', 'Booyah!', 'Zing!', 'Cha-ching!', 'Dope!', 'Sick!']
 const levels = ['Major', 'Minor', 'Both']
-const levelLabel = {
-  maj: 'Major',
-  min: 'Minor'
-}
 
-var {currentLevel, levelsCompleted} = JSON.parse(
+var {currentLevel = 0, levelsCompleted = 0, highScore = 0} = JSON.parse(
   localStorage.getItem('stats')
-) || {currentLevel: 0, levelsCompleted: 0}
+) || {}
 
 var solved = []
 
@@ -70,9 +61,12 @@ allPromises.then(([success, fail, ready]) => {
   images = {success, fail, ready}
 })
 
+var bonusTimer
+
 function App() {
   const [game, setGame] = useState(null)
   const [banner, setBanner] = useState({title: 'Loading...'})
+  const [bonus, setBonus] = useState(0)
 
   if (!loaded) {
     allPromises.then(() => {
@@ -89,32 +83,61 @@ function App() {
   const { clef, type, letter, letters = [], previous = {} } = game || {}
   const remainingCount = letters.length - solved.length
 
+  useEffect(() => {
+    if (bonus > 0) {
+      bonusTimer = setTimeout(() => {
+        setBonus(bonus - 1)
+        setBanner({
+          title: (
+            <span style={{fontSize: 'smaller'}}>
+              {((bonus - 1) * 10) + previous.streak}x Point Multiplier!
+            </span>
+          ),
+          color: 'green'
+        })
+      }, 2000)
+
+      return () => clearTimeout(bonusTimer)
+    }
+  })
+
   const onClick = (e) => {
     var win = e.target.textContent === letter
     const count = previous.count + 1
     const streak = win ? (previous.streak || 0) + 1 : 0
     const losses = !win ? (previous.losses || 0) + 1 : 0
+    const pointsMultiplier = streak + (bonus * 10)
+    const score = (pointsMultiplier * 100) + (previous.score || 0)
     win && solved.push(letter)
 
     if (solved.length === letters.length) {
       solved = []
+      if (currentLevel < levelsCompleted) {
+        currentLevel = Math.min(currentLevel + 1, levels.length - 1)
+      }
       levelsCompleted = Math.min(levelsCompleted + 1, 3)
-      currentLevel = Math.min(currentLevel + 1, levels.length - 1)
-      localStorage.setItem('stats', JSON.stringify({currentLevel, levelsCompleted}))
+      highScore = Math.max(highScore, score)
+      localStorage.setItem('stats', JSON.stringify({currentLevel, levelsCompleted, highScore}))
       setBanner({
         title: levelsCompleted === 3 ? <Prize /> : pickRandom(wins),
         splash: pickRandom(images.success),
         color: 'green'
       })
       setGame(null)
+      setBonus(0)
+      clearTimeout(bonusTimer)
+      bonusTimer = null
     } else {
       if (win) {
         const color = 'green'
         if (streak > 1) {
+          clearTimeout(bonusTimer)
+          bonusTimer = null
+          setBonus(bonus + 2)
           setBanner({
             title: (
               <span style={{fontSize: 'smaller'}}>
-                {streak} POINT STREAK!
+                {streak + ((bonus + 2) * 10)}x Point Multiplier!
               </span>
             ),
             color
@@ -122,8 +145,12 @@ function App() {
         } else {
           setBanner({title: pickRandom(wins), color})
         }
-        setGame(play({ count, streak, losses, win, lastLetter: letter }))
+        setGame(play({ count, streak, losses, win, score, lastLetter: letter }))
       } else {
+        setBonus(0)
+        clearTimeout(bonusTimer)
+        bonusTimer = null
+
         const fail = {
           title: (
             <KeySignature letter={letter}>
@@ -144,7 +171,7 @@ function App() {
         const wait = Math.max((frames * fps) + latency, 5000)
         setTimeout(() => {
           setBanner(fail)
-          setGame(play({ count, streak, losses, win, lastLetter: letter }))
+          setGame(play({ count, streak, losses, win, score, lastLetter: letter }))
         }, wait)
       }
     }
@@ -152,12 +179,19 @@ function App() {
 
   const onPlayClick = () => {
     setBanner({title: 'GO!'})
+    setBonus(0)
+    clearTimeout(bonusTimer)
+    bonusTimer = null
     setGame(play({count: 0}))
   }
 
   const onLevelClick = levelIndex => {
     currentLevel = levelIndex
     setGame(null)
+    setBonus(0)
+    clearTimeout(bonusTimer)
+    bonusTimer = null
+    localStorage.setItem('stats', JSON.stringify({currentLevel, levelsCompleted, highScore}))
     setBanner({title: 'Ready?', splash: pickRandom(images.ready)})
   }
 
@@ -172,10 +206,11 @@ function App() {
           {banner.title}
           {url && <img src={url} style={{maxWidth: '100%', marginTop: '0.5rem'}} />}
         </Banner>
+        <h5 style={{color: 'grey', margin: '0.5rem 0 0'}}>High Score: {highScore}</h5>
         <LevelStars level={currentLevel} onClick={onLevelClick} />
         {letter && (
           <Fragment>
-            <LevelHeader type={levelLabel[type]} remainingCount={remainingCount} />
+            <LevelHeader score={previous.score} remainingCount={remainingCount} />
             <KeySignatureImage letter={letter} clef={clef} type={type} />
             {!banner.splash && (
               <KeySignatureButtons letters={letterButtons} onClick={onClick} />
@@ -288,10 +323,11 @@ function Banner ({color, height, children}) {
   )
 }
 
-function LevelHeader ({type, remainingCount}) {
+function LevelHeader ({score, remainingCount}) {
+  const style = {fontWeight: '900', fontSize: 'smaller'}
   return (
     <h2 style={{fontWeight: 300}}>
-      {type} ({remainingCount} left)
+      <span style={style}>Score: {score || 0}</span> ({remainingCount} left)
     </h2>
   )
 }
@@ -303,7 +339,7 @@ function KeySignatureImage ({letter, clef, type}) {
   const className = `${clef}-${cssLetter.toLowerCase()}-${type}`
 
   return (
-    <div className={`App-logo ${className}`} />
+    <div className="KeySigImageContainer"><div className={`KeySigImage ${className}`} /></div>
   )
 }
 
