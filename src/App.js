@@ -190,6 +190,11 @@ function App() {
   const onResetClick = () => {
     localStorage.removeItem('stats')
     setStats(null)
+    setGame(null)
+    setBonus(0)
+    clearTimeout(bonusTimer)
+    bonusTimer = null
+    setBanner({title: 'Ready?', splash: pickRandom(images.ready)})
   }
 
   const onLevelClick = levelIndex => {
