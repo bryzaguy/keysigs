@@ -233,6 +233,12 @@
   animation-duration: 0.55s;
 }
 
+
+.pulse.wow {
+  animation: pulse 2s 1s infinite, wow linear 0.55s;
+}
+
+
 @keyframes pulse {
   0% {
     opacity: 1;

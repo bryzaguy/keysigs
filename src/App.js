@@ -7,7 +7,6 @@ const pickRandom = arr => arr[random(arr.length)];
 
 // TODO:
 //   - Links allow playing previous levels, underline level like link, store completed levels rather than calculate.
-//   - Save/load progress from localStorage
 //   - High score (correct answers are 100 pts)
 //     - Streak multiplier (100 * 10)
 //     - Time multiplier which (carries over?) (halves every 3 seconds) 10x, 5x, 2x
@@ -54,7 +53,7 @@ const giphy = search => fetch(
     giphyApiKey
   }&q=${
     search
-  }&limit=30&offset=${
+  }&limit=20&offset=${
     random(1000)
   }&rating=g&lang=en`
 ).then(a => a.json()).then(a => a.data.map(b => (
@@ -158,6 +157,12 @@ function App() {
     setGame(play({count: 0}))
   }
 
+  const onLevelClick = levelIndex => {
+    currentLevel = levelIndex
+    setGame(null)
+    setBanner({title: 'Ready?', splash: pickRandom(images.ready)})
+  }
+
   const [url, height] = banner.splash || []
   const letterButtons = type === 'maj' ? major_letters : minor_letters
 
@@ -169,7 +174,7 @@ function App() {
           {banner.title}
           {url && <img src={url} style={{maxWidth: '100%', marginTop: '0.5rem'}} />}
         </Banner>
-        <LevelStars level={currentLevel} />
+        <LevelStars level={currentLevel} onClick={onLevelClick} />
         {letter && (
           <Fragment>
             <LevelHeader type={levelLabel[type]} remainingCount={remainingCount} />
@@ -201,7 +206,7 @@ function LoadImages () {
   )
 }
 
-function LevelStars ({level}) {
+function LevelStars ({level, onClick = () => {}}) {
   return (
     <div className="LevelStars">
       {levels.map((_, levelIndex) => {
@@ -210,13 +215,24 @@ function LevelStars ({level}) {
         const color = isComplete ? 'green' : (
           isCurrentLevel ? 'darkgrey' : 'lightgrey'
         )
-        const animation = isComplete ? 'wow' : (
-          isCurrentLevel ? 'pulse' : ''
-        )
+        const animation = [
+          isComplete && 'wow',
+          isCurrentLevel && 'pulse',
+        ].filter(a => a).join(' ')
+
+        const style = {
+          border: '1px solid #CCC',
+          padding: '0.25rem 0.5rem',
+          borderRadius: '3px',
+          boxShadow: `2px 4px 6px rgba(0,0,0,${isCurrentLevel ? '0.35' : '0.15'})`,
+          opacity: !isComplete && !isCurrentLevel && 0.5
+        }
+
+        const onLevelClick = () => isComplete && onClick(levelIndex)
 
         return (
-          <span key={levelIndex} className="LevelStar">
-            Level {levelIndex + 1}: &nbsp;
+          <span key={levelIndex} className="LevelStar" style={style} onClick={onLevelClick}>
+            <span>Level {levelIndex + 1}:</span> &nbsp;
             <Star color={color} animation={animation} />
           </span>
         )
