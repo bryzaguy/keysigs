@@ -21,14 +21,11 @@ const fails = ['Sorry', 'So close', ':(', 'Ouch', 'Whoops', 'Oopsie', 'Dang', 'A
 const wins = ['Nice!', 'Cool!', 'Huzzah!', 'Pow!', 'Booyah!', 'Zing!', 'Cha-ching!', 'Dope!', 'Sick!']
 const levels = ['Major', 'Minor', 'Both']
 
-var {currentLevel = 0, levelsCompleted = 0, highScore = 0} = JSON.parse(
-  localStorage.getItem('stats')
-) || {}
-
 var solved = []
 
 const play = (previous) => {
-  const letters = [major_letters, minor_letters][currentLevel] || major_letters.concat(minor_letters)
+  const current_letters = [major_letters, minor_letters][previous.currentLevel]
+  const letters = current_letters || major_letters.concat(minor_letters)
   const letter = pickRandom(letters.filter(l => solved.indexOf(l) === -1))
   const type = major_letters.indexOf(letter) > -1 ? 'maj' : 'min'
   const clef = pickRandom(clefs)
@@ -67,6 +64,9 @@ function App() {
   const [game, setGame] = useState(null)
   const [banner, setBanner] = useState({title: 'Loading...'})
   const [bonus, setBonus] = useState(0)
+  const [stats, setStats] = useState(JSON.parse(localStorage.getItem('stats')))
+
+  var {currentLevel = 0, levelsCompleted = 0, highScore = 0} = stats || {}
 
   if (!loaded) {
     allPromises.then(() => {
@@ -117,7 +117,9 @@ function App() {
         levelsCompleted = levelsCompleted + 1
       }
       highScore = Math.max(highScore, score)
-      localStorage.setItem('stats', JSON.stringify({currentLevel, levelsCompleted, highScore}))
+      const stats = {currentLevel, levelsCompleted, highScore}
+      localStorage.setItem('stats', JSON.stringify(stats))
+      setStats(stats)
       setBanner({
         title: levelsCompleted === 3 ? <Prize /> : pickRandom(wins),
         splash: pickRandom(images.success),
@@ -145,7 +147,7 @@ function App() {
         } else {
           setBanner({title: pickRandom(wins), color})
         }
-        setGame(play({ count, streak, losses, win, score, lastLetter: letter }))
+        setGame(play({ count, streak, losses, win, score, lastLetter: letter, currentLevel }))
       } else {
         setBonus(0)
         clearTimeout(bonusTimer)
@@ -171,7 +173,7 @@ function App() {
         const wait = Math.max((frames * fps) + latency, 5000)
         setTimeout(() => {
           setBanner(fail)
-          setGame(play({ count, streak, losses, win, score, lastLetter: letter }))
+          setGame(play({ count, streak, losses, win, score, lastLetter: letter, currentLevel }))
         }, wait)
       }
     }
@@ -182,7 +184,12 @@ function App() {
     setBonus(0)
     clearTimeout(bonusTimer)
     bonusTimer = null
-    setGame(play({count: 0}))
+    setGame(play({count: 0, currentLevel}))
+  }
+
+  const onResetClick = () => {
+    localStorage.removeItem('stats')
+    setStats(null)
   }
 
   const onLevelClick = levelIndex => {
@@ -191,7 +198,9 @@ function App() {
     setBonus(0)
     clearTimeout(bonusTimer)
     bonusTimer = null
-    localStorage.setItem('stats', JSON.stringify({currentLevel, levelsCompleted, highScore}))
+    const stats = {currentLevel, levelsCompleted, highScore}
+    localStorage.setItem('stats', JSON.stringify(stats))
+    setStats(stats)
     setBanner({title: 'Ready?', splash: pickRandom(images.ready)})
   }
 
@@ -207,7 +216,7 @@ function App() {
           {url && <img src={url} style={{maxWidth: '100%', marginTop: '0.5rem'}} />}
         </Banner>
         <h5 style={{color: 'grey', margin: '0.5rem 0 0'}}>High Score: {highScore}</h5>
-        <LevelStars level={currentLevel} onClick={onLevelClick} />
+        <LevelStars level={currentLevel} levelsCompleted={levelsCompleted} onClick={onLevelClick} />
         {letter && (
           <Fragment>
             <LevelHeader score={previous.score} remainingCount={remainingCount} />
@@ -217,16 +226,17 @@ function App() {
             )}
           </Fragment>
         )}
-        {game == null && <PlayButton onClick={onPlayClick} />}
+        {game == null && <Button onClick={onPlayClick}>Play!</Button>}
+        {game == null && <Button onClick={onResetClick}>Reset</Button>}
       </header>
       {loaded && <LoadImages />}
     </div>
   );
 }
 
-function PlayButton ({onClick}) {
+function Button ({onClick, children}) {
   return (
-    <button style={{fontSize: '1.5rem', padding: '1rem'}} onClick={onClick}>Play!</button>
+    <button style={{fontSize: '1.5rem', padding: '1rem'}} onClick={onClick}>{children}</button>
   )
 }
 
@@ -239,7 +249,7 @@ function LoadImages () {
   )
 }
 
-function LevelStars ({level, onClick = () => {}}) {
+function LevelStars ({level, levelsCompleted, onClick = () => {}}) {
   return (
     <div className="LevelStars">
       {levels.map((_, levelIndex) => {
