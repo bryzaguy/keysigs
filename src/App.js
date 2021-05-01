@@ -9,7 +9,6 @@ const pickRandom = arr => arr[random(arr.length)];
 //   - High score (correct answers are 100 pts)
 //     - Streak multiplier (100 * 10)
 //     - Time multiplier which (carries over?) (halves every 3 seconds) 10x, 5x, 2x
-//   - Adjust pictures so all the key signature bars line up
 
 const prizeLink =
   "https://docs.google.com/document/d/1e8bCDXDnz1Y-qnNY2vTknYMVThinHRO2Ur9eF1V1DZk/edit?usp=sharing";
