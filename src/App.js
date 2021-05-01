@@ -433,6 +433,7 @@ function Star({ color, animation }) {
       <path
         style={{
           fill: color,
+          stroke: 'white'
         }}
         d={[
           "M12",
