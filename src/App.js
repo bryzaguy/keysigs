@@ -227,7 +227,7 @@ function App() {
           </Fragment>
         )}
         {game == null && <Button onClick={onPlayClick}>Play!</Button>}
-        {game == null && <Button onClick={onResetClick}>Reset</Button>}
+        {game == null && <button style={{marginTop: '2rem'}} onClick={onResetClick}>Reset</button>}
       </header>
       {loaded && <LoadImages />}
     </div>
